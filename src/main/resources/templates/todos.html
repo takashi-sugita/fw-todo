@@ -8,6 +8,7 @@
 </head>
 <body>
     <div class="container">
+        <p class="flash" th:if="${message != null}" th:text="${message}"></p>
         <h1 class="page-title">やること一覧</h1>
         <a class="btn" th:href="@{/todos/new}">新規登録</a>
 
