@@ -30,4 +30,9 @@
         INSERT INTO todos (title, detail, category, priority, due_date)
         VALUES (#{title}, #{detail}, #{category}, #{priority}, #{dueDate})
     </insert>
+
+    <delete id="deleteById">
+        DELETE FROM todos
+        WHERE id = #{id}
+    </delete>
 </mapper>
