@@ -15,10 +15,10 @@ import jakarta.validation.Valid;
 @Controller
 public class HomeController {
 
-    private final TodoMapper todoMapper;
+    private final TodoService todoService;
 
-    public HomeController(TodoMapper todoMapper) {
-        this.todoMapper = todoMapper;
+    public HomeController(TodoService todoService) {
+        this.todoService = todoService;
     }
 
     @GetMapping("/")
@@ -37,7 +37,7 @@ public class HomeController {
         if (!"desc".equals(order)) {
             order = "asc";
         }
-        model.addAttribute("todos", todoMapper.search(keyword, category, order));
+        model.addAttribute("todos", todoService.search(keyword, category, order));
         model.addAttribute("keyword", keyword);
         model.addAttribute("category", category);
         model.addAttribute("order", order);
@@ -64,14 +64,14 @@ public class HomeController {
 
     @PostMapping("/todos")
     public String saveTodo(@ModelAttribute("todo") Todo todo, RedirectAttributes redirectAttributes) {
-        todoMapper.insert(todo);
+        todoService.create(todo);
         redirectAttributes.addFlashAttribute("message", "登録しました");
         return "redirect:/todos";
     }
 
     @GetMapping("/todos/{id}/edit")
     public String showEditForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Todo todo = todoMapper.findById(id);
+        Todo todo = todoService.findById(id);
         if (todo == null) {
             redirectAttributes.addFlashAttribute("message", "見つかりませんでした");
             return "redirect:/todos";
@@ -101,14 +101,14 @@ public class HomeController {
     public String updateTodo(@PathVariable Long id, @ModelAttribute("todo") Todo todo,
             RedirectAttributes redirectAttributes) {
         todo.setId(id);
-        todoMapper.update(todo);
+        todoService.update(todo);
         redirectAttributes.addFlashAttribute("message", "保存しました");
         return "redirect:/todos";
     }
 
     @GetMapping("/todos/{id}/delete")
     public String showDeleteConfirm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
-        Todo todo = todoMapper.findById(id);
+        Todo todo = todoService.findById(id);
         if (todo == null) {
             redirectAttributes.addFlashAttribute("message", "見つかりませんでした");
             return "redirect:/todos";
@@ -119,7 +119,7 @@ public class HomeController {
 
     @PostMapping("/todos/{id}/delete")
     public String deleteTodo(@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        todoMapper.deleteById(id);
+        todoService.delete(id);
         redirectAttributes.addFlashAttribute("message", "削除しました");
         return "redirect:/todos";
     }

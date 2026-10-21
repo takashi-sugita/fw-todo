@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>テスト仕様書</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 16px; color: #222; font-family: sans-serif; }
+    .toolbar { display: flex; justify-content: flex-end; margin-bottom: 8px; }
+    button { padding: 6px 14px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 11px; }
+    col:nth-child(1) { width: 5%; } col:nth-child(2) { width: 20%; }
+    col:nth-child(3) { width: 15%; } col:nth-child(4) { width: 25%; }
+    col:nth-child(5) { width: 10%; } col:nth-child(6) { width: 25%; }
+    th, td { border: 1px solid #777; padding: 4px; vertical-align: top; overflow-wrap: anywhere; }
+    th { background: #eee; }
+    .result { white-space: nowrap; }
+    .result label { display: inline-block; margin-right: 4px; }
+    textarea { display: block; width: 100%; min-height: 42px; resize: vertical; font: inherit; }
+    @media print {
+      @page { size: landscape; margin: 8mm; }
+      body { margin: 0; }
+      .toolbar { display: none; }
+      table { font-size: 9px; }
+      textarea { height: auto; min-height: 0; resize: none; overflow: visible; border: 0; padding: 0; }
+      tr { break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div class="toolbar"><button type="button" onclick="window.print()">PDFで保存</button></div>
+  <table>
+    <colgroup><col><col><col><col><col><col></colgroup>
+    <thead><tr><th>番号</th><th>確かめること</th><th>入れる値</th><th>期待する結果</th><th>結果</th><th>備考/NG</th></tr></thead>
+    <tbody id="items"></tbody>
+  </table>
+  <script>
+    const cases = [
+      ['一覧で既存の5件を表示する', 'http://localhost:8080/todos', '5件それぞれのやること・ジャンル・優先度・期限・状態と編集・削除が一覧に表示される。'],
+      ['一覧から新規登録画面を開く', '「新規登録」を押す', 'やること、メモ、ジャンル、優先度、期限の入力欄と「確認する」「一覧へ」が表示される。'],
+      ['登録画面から一覧へ戻る', '「一覧へ」を押す', '/todos の一覧画面が表示される。'],
+      ['テスト用のやることを登録する', 'やること: テスト用課題A、メモ: テストメモ、ジャンル: プログラミング、優先度: 高、期限: 2026-11-01 →「確認する」', '登録の確認画面に5項目が文字で表示され、入力なしの欄があれば「（入力なし）」と表示される。'],
+      ['登録確認から書き直す', '「書き直す」を押す', '登録画面に戻り、入力した値が各欄に残っている。'],
+      ['登録内容を登録する', '登録画面で「確認する」→「登録する」', '一覧にテスト用課題Aが表示され、上部に「登録しました」と表示される。'],
+      ['登録行の編集画面を開く', 'テスト用課題Aの「編集」を押す', 'やること・メモ・ジャンル・優先度・期限・完了の6欄が現在値入りで表示される。'],
+      ['編集内容を確認する', 'やることをテスト用課題A編集に変更し「確認する」を押す', '編集の確認画面に入力内容が文字で表示される。'],
+      ['編集確認から書き直す', '「書き直す」を押す', '編集画面に戻り、変更内容が各欄に残っている。'],
+      ['編集内容を保存する', '「確認する」→「保存する」', '一覧の対象行がテスト用課題A編集になり、上部に「保存しました」と表示される。'],
+      ['削除確認画面を開く', 'テスト用課題A編集の「削除」を押す', '削除確認画面に対象のやること・ジャンル・期限が表示され、入力欄は表示されない。'],
+      ['削除をやめる', '「やめる」を押す', '一覧画面が表示され、対象行が残っている。'],
+      ['登録したテスト行を削除する', 'テスト用課題A編集の「削除」→「消す」', '一覧からテスト用課題A編集が消え、上部に「削除しました」と表示される。'],
+      ['優先度と状態を画面の言葉で表示する', '優先度1/2/3、完了1/0の行を確認', '優先度が高/中/低、状態が完了/未完了と表示される。'],
+      ['0件の一覧表示を確認する', '検索語に一致しない文字を入力して絞り込む', '一覧に「まだ1件も登録されていません」と表示される。'],
+      ['登録確認で未入力の任意欄を表示する', 'メモと期限を空欄にして登録画面から「確認する」', '登録確認画面のメモと期限に「（入力なし）」と表示される。'],
+      ['編集確認画面を開く', '既存行で編集し「確認する」を押す', '変更内容が文字で表示され、「保存する」「書き直す」が表示される。'],
+      ['編集画面から一覧へ戻る', '編集画面で「一覧へ」を押す', '/todos の一覧画面が表示される。'],
+      ['削除確認画面の操作を確認する', '削除確認画面を開く', '「消す」と「やめる」が表示される。'],
+      ['必須のやることが空なら登録を止める', 'やることを空にして「確認する」', '登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。'],
+      ['やること255文字超過を止める', 'やることに256文字を入力して「確認する」', '登録画面に留まり、やること欄の下に「やることは255文字以内で入力してください」と表示される。'],
+      ['メモ255文字超過を止める', 'メモに256文字を入力して「確認する」', '登録画面に留まり、メモ欄の下に「メモは255文字以内で入力してください」と表示される。'],
+      ['ジャンル未選択を止める', 'ジャンルを選ばず「確認する」', '登録画面に留まり、ジャンル欄の下に「ジャンルを選んでください」と表示される。'],
+      ['優先度未選択を止める', '優先度を選ばず「確認する」', '登録画面に留まり、優先度欄の下に「優先度を選んでください」と表示される。'],
+      ['半角空白だけのやることを止める', 'やることに半角空白だけを入力して「確認する」', '登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。'],
+      ['全角空白だけのやることを止める', 'やることに全角空白だけを入力して「確認する」', '登録画面に留まり、やること欄の下に「やることを入力してください」と表示される。'],
+      ['存在しない番号の編集画面を開く', '/todos/存在しない番号/edit を開く', '一覧に戻り、上部に「見つかりませんでした」と表示される。'],
+      ['存在しない番号の削除確認画面を開く', '/todos/存在しない番号/delete を開く', '一覧に戻り、上部に「見つかりませんでした」と表示される。'],
+      ['期限が近い順で初期表示する', '/todos を開く', '一覧が期限の近い順に並び、上部に操作結果の文がある場合は1行で表示される。'],
+      ['名前の一部を含む行で絞り込む', '名前欄に課題などタイトルの一部を入力し「絞り込む」', 'titleに入力語を一部でも含む行だけが一覧に表示される。'],
+      ['ジャンルを完全一致で絞り込む', 'ジャンル: プログラミングを選び「絞り込む」', 'categoryがプログラミングと完全に一致する行だけが一覧に表示される。'],
+      ['名前とジャンルが空なら絞り込まない', '名前欄を空、ジャンルを「すべて」にして「絞り込む」', '全件が一覧に表示される。'],
+      ['期限が近い順に並べ替える', '「期限が近い順」を押す', '一覧がdue_dateの近い順に表示される。'],
+      ['期限が遠い順に並べ替える', '「期限が遠い順」を押す', '一覧がdue_dateの遠い順に表示される。'],
+      ['絞り込み条件と並び順をアドレスに残す', '名前とジャンルで絞り込み、期限が近い順を選ぶ', 'ブラウザのアドレス末尾にkeyword・category・orderが付き、同じアドレスを開くと同じ絞り込みと順序になる。'],
+      ['テストで増やした行を削除して5件に戻す', 'このテストで登録した行が残っていれば「削除」→「消す」', 'テストで増やした行がなくなり、登録件数が5件になる。']
+    ];
+    const body = document.getElementById('items');
+    cases.forEach((item, index) => {
+      const row = document.createElement('tr');
+      [String(index + 1), item[0], item[1], item[2]].forEach(value => {
+        const cell = document.createElement('td'); cell.textContent = value; row.appendChild(cell);
+      });
+      const result = document.createElement('td'); result.className = 'result';
+      const group = 'result-' + (index + 1);
+      ['OK', 'NG'].forEach(value => {
+        const label = document.createElement('label');
+        const radio = document.createElement('input'); radio.type = 'radio'; radio.name = group; radio.value = value;
+        label.append(radio, document.createTextNode(value)); result.appendChild(label);
+      });
+      row.appendChild(result);
+      const notes = document.createElement('td'); const area = document.createElement('textarea');
+      area.setAttribute('aria-label', '備考/NG ' + (index + 1)); notes.appendChild(area); row.appendChild(notes);
+      body.appendChild(row);
+    });
+    function expandNotes() {
+      document.querySelectorAll('textarea').forEach(area => {
+        area.style.height = 'auto';
+        area.style.height = Math.max(area.scrollHeight, 18) + 'px';
+      });
+    }
+    window.addEventListener('beforeprint', expandNotes);
+    window.addEventListener('afterprint', () => document.querySelectorAll('textarea').forEach(area => area.style.height = ''));
+  </script>
+</body>
+</html>
