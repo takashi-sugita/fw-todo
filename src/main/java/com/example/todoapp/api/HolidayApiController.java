@@ -22,10 +22,11 @@ public class HolidayApiController {
     public ResponseEntity<Map<String, String>> getHolidays(
             @RequestParam(name = "from", required = false) String from,
             @RequestParam(name = "to", required = false) String to) {
-        Map<String, String> holidays = holidayClient.fetchHolidays();
+        HolidayClient.HolidayResult result = holidayClient.fetchHolidays();
+        Map<String, String> holidays = result.holidays();
 
         if (from == null && to == null) {
-            return ResponseEntity.ok(holidays);
+            return response(holidays, result.unavailable());
         }
 
         LocalDate fromDate = from == null ? null : LocalDate.parse(from);
@@ -38,6 +39,15 @@ public class HolidayApiController {
                 })
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
 
-        return ResponseEntity.ok(filtered);
+        return response(filtered, result.unavailable());
+    }
+
+    private ResponseEntity<Map<String, String>> response(Map<String, String> holidays, boolean unavailable) {
+        if (unavailable) {
+            return ResponseEntity.ok()
+                    .header("X-Holidays-Unavailable", "true")
+                    .body(holidays);
+        }
+        return ResponseEntity.ok(holidays);
     }
 }
