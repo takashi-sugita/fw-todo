@@ -5,8 +5,8 @@ POST http://localhost:8080/api/todos
 Content-Type: application/json
 
 {
-  "title": "",
-  //"title": "ポートフォリオのデザインを整える",
+  //"title": "",
+  "title": "ポートフォリオのデザインを整える",
   "category": "デザイン",
   "priority": 2,
   "dueDate": "2026-11-01"
@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 
 ### 4. 1件削除する
-DELETE http://localhost:8080/api/todos/11
+DELETE http://localhost:8080/api/todos/12
 
 
 ### 5. 祝日を直接取ってくる
