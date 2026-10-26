@@ -38,8 +38,27 @@
         const params = new URLSearchParams({ from, to });
         const res = await fetch(`/api/todos?${params}`);
         const todos = await res.json();
+        const holidayRes = await fetch(`/api/holidays?${params}`);
+        const holidays = await holidayRes.json();
+
+        if (holidayRes.headers.has('X-Holidays-Unavailable')) {
+            const message = document.createElement('div');
+            message.textContent = '祝日を取れませんでした';
+            document.body.insertBefore(message, document.body.firstChild);
+        }
 
         document.querySelectorAll('.calendar-table td[data-date]').forEach(cell => {
+            const [year, month, day] = cell.dataset.date.split('-').map(Number);
+            const weekday = new Date(year, month - 1, day).getDay();
+            if (Object.hasOwn(holidays, cell.dataset.date)) {
+                cell.style.backgroundColor = '#fff0cc';
+                cell.title = holidays[cell.dataset.date];
+            } else if (weekday === 6) {
+                cell.style.backgroundColor = '#e8f1ff';
+            } else if (weekday === 0) {
+                cell.style.backgroundColor = '#ffe8e8';
+            }
+
             todos
                 .filter(todo => todo.dueDate === cell.dataset.date)
                 .forEach(todo => {
