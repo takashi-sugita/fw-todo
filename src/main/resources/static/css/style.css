@@ -124,6 +124,12 @@ body {
     margin-bottom: 16px;
 }
 
+.calendar-month-links,
+.calendar-page-links {
+    display: flex;
+    gap: 8px;
+}
+
 .calendar-table {
     width: 100%;
     table-layout: fixed;

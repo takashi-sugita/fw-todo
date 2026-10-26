@@ -10,8 +10,14 @@
     <main class="container calendar-page">
         <h1 class="page-title" th:text="${selectedMonth.year} + '年' + ${selectedMonth.monthValue} + '月'">2026年4月</h1>
         <nav class="calendar-navigation" aria-label="月の移動">
-            <a class="btn sub" th:href="@{/calendar(year=${previousMonth.year}, month=${previousMonth.monthValue})}">前の月</a>
-            <a class="btn sub" th:href="@{/calendar(year=${nextMonth.year}, month=${nextMonth.monthValue})}">次の月</a>
+            <div class="calendar-month-links">
+                <a class="btn sub" th:href="@{/calendar(year=${previousMonth.year}, month=${previousMonth.monthValue})}">前の月</a>
+                <a class="btn sub" th:href="@{/calendar(year=${nextMonth.year}, month=${nextMonth.monthValue})}">次の月</a>
+            </div>
+            <div class="calendar-page-links">
+                <a class="btn sub" th:href="@{/todos}">表で見る</a>
+                <a class="btn" th:href="@{/todos/new}">新規登録</a>
+            </div>
         </nav>
         <table class="calendar-table" th:attr="data-from=${#temporals.format(firstDay, 'yyyy-MM-dd')}, data-to=${#temporals.format(lastDay, 'yyyy-MM-dd')}">
             <thead>
@@ -63,8 +69,10 @@
 
             const cellTodos = todos.filter(todo => todo.dueDate === cell.dataset.date);
             cellTodos.slice(0, 3).forEach(todo => {
-                    const name = document.createElement('div');
+                    const name = document.createElement('a');
+                    name.href = `/todos/${todo.id}/edit`;
                     name.textContent = todo.title;
+                    name.style.color = 'inherit';
                     if (todo.dueDate < today && todo.completed !== true) {
                         name.style.color = 'red';
                     }
