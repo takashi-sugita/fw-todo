@@ -3,6 +3,7 @@ package com.example.todoapp.api;
 import java.util.List;
 import java.util.Map;
 import java.net.URI;
+import java.time.LocalDate;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -35,8 +36,10 @@ public class TodoApiController {
     public List<TodoDto> getTodos(
             @RequestParam(name = "keyword", required = false) String keyword,
             @RequestParam(name = "category", required = false) String category,
-            @RequestParam(name = "order", required = false) String order) {
-        return todoService.search(keyword, category, order).stream()
+            @RequestParam(name = "order", required = false) String order,
+            @RequestParam(name = "from", required = false) LocalDate from,
+            @RequestParam(name = "to", required = false) LocalDate to) {
+        return todoService.search(keyword, category, order, from, to).stream()
                 .map(TodoDto::from)
                 .toList();
     }
