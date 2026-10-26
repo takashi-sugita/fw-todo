@@ -29,7 +29,7 @@ Content-Type: application/json
 }
 
 ### 4. 1件削除する
-DELETE http://localhost:8080/api/todos/13
+DELETE http://localhost:8080/api/todos/17
 
 
 ### 5. 祝日を直接取ってくる
