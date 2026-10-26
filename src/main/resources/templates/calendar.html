@@ -40,6 +40,8 @@
         const todos = await res.json();
         const holidayRes = await fetch(`/api/holidays?${params}`);
         const holidays = await holidayRes.json();
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
         if (holidayRes.headers.has('X-Holidays-Unavailable')) {
             const message = document.createElement('div');
@@ -59,13 +61,21 @@
                 cell.style.backgroundColor = '#ffe8e8';
             }
 
-            todos
-                .filter(todo => todo.dueDate === cell.dataset.date)
-                .forEach(todo => {
+            const cellTodos = todos.filter(todo => todo.dueDate === cell.dataset.date);
+            cellTodos.slice(0, 3).forEach(todo => {
                     const name = document.createElement('div');
                     name.textContent = todo.title;
+                    if (todo.dueDate < today && todo.completed !== true) {
+                        name.style.color = 'red';
+                    }
                     cell.appendChild(name);
                 });
+
+            if (cellTodos.length > 3) {
+                const more = document.createElement('div');
+                more.textContent = `ほか ${cellTodos.length - 3}件`;
+                cell.appendChild(more);
+            }
         });
     }
 
