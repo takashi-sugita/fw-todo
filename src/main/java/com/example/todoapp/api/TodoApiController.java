@@ -4,9 +4,13 @@ import java.util.List;
 import java.util.Map;
 import java.net.URI;
 import java.time.LocalDate;
+import java.nio.charset.StandardCharsets;
+import java.util.stream.Collectors;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -42,6 +46,42 @@ public class TodoApiController {
         return todoService.search(keyword, category, order, from, to).stream()
                 .map(TodoDto::from)
                 .toList();
+    }
+
+    @GetMapping(value = "/api/todos.csv", produces = "text/csv")
+    public ResponseEntity<byte[]> exportTodosCsv(
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name = "category", defaultValue = "") String category,
+            @RequestParam(name = "order", defaultValue = "asc") String order,
+            @RequestParam(name = "includeCompleted", defaultValue = "false") boolean includeCompleted) {
+        if (!"desc".equals(order)) {
+            order = "asc";
+        }
+        List<Todo> todos = todoService.searchForList(keyword, category, order, includeCompleted);
+        String rows = todos.stream().map(todo -> String.join(",",
+                csvCell(todo.getTitle()),
+                csvCell(todo.getCategory()),
+                csvCell(todo.getPriority() == 1 ? "高" : (todo.getPriority() == 2 ? "中" : "低")),
+                csvCell(todo.getDueDate() == null ? "" : todo.getDueDate().toString()),
+                csvCell(Boolean.TRUE.equals(todo.getCompleted())
+                        ? "完了" + (todo.getCompletedAt() == null ? "" : "（" + todo.getCompletedAt().toLocalDate() + "）")
+                        : "未完了"),
+                csvCell(todo.getDetail())))
+                .collect(Collectors.joining("\r\n"));
+        String csv = "やること,ジャンル,優先度,期限,状態,メモ\r\n" + rows + "\r\n";
+        byte[] body = ("\uFEFF" + csv).getBytes(StandardCharsets.UTF_8);
+        return ResponseEntity.ok()
+                .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"todos.csv\"")
+                .body(body);
+    }
+
+    private String csvCell(String value) {
+        String safeValue = value == null ? "" : value;
+        if (safeValue.startsWith("=") || safeValue.startsWith("+")) {
+            safeValue = "'" + safeValue;
+        }
+        return "\"" + safeValue.replace("\"", "\"\"") + "\"";
     }
 
     @GetMapping("/api/todos/{id}")

@@ -4,8 +4,8 @@
 
 body {
     margin: 0;
-    color: #e2e8f0;
-    background: #0f172a;
+    color: #334155;
+    background: #ffffff;
     font-family: sans-serif;
     font-size: 16px;
     line-height: 1.6;
@@ -20,7 +20,7 @@ body {
 
 .page-title {
     margin: 0 0 24px;
-    color: #f8fafc;
+    color: #1e293b;
     font-size: 28px;
 }
 
@@ -31,32 +31,32 @@ body {
 
 .todo-table th,
 .todo-table td {
-    border: 1px solid #64748b;
+    border: 1px solid #94a3b8;
     padding: 6px 10px;
     text-align: left;
     font-size: 14px;
 }
 
 .todo-table th {
-    background: #1e293b;
+    background: #f1f5f9;
     font-weight: bold;
 }
 
 .priority-marker {
     margin-left: 4px;
-    color: #fbbf24;
+    color: #b45309;
 }
 
 .todo-table tr.overdue {
-    background: #4c1d24;
+    background: #ffe8e8;
 }
 
 .flash {
     margin: 0 0 16px;
-    border: 1px solid #64748b;
+    border: 1px solid #cbd5e1;
     border-radius: 8px;
     padding: 8px 12px;
-    background: #1e293b;
+    background: #f1f5f9;
 }
 
 .search-bar {
@@ -81,8 +81,8 @@ body {
     border: 1px solid #94a3b8;
     border-radius: 6px;
     padding: 7px 10px;
-    background: #1e293b;
-    color: #e2e8f0;
+    background: #ffffff;
+    color: #334155;
     font: inherit;
 }
 
@@ -92,7 +92,7 @@ body {
 
 .error {
     margin: 4px 0 0;
-    color: #fca5a5;
+    color: #B91C1C;
     font-weight: bold;
 }
 
@@ -107,19 +107,19 @@ body {
 
 .btn {
     display: inline-block;
-    border: 1px solid #94a3b8;
+    border: 1px solid #334155;
     border-radius: 7px;
     padding: 7px 18px;
-    background: #cbd5e1;
-    color: #0f172a;
+    background: #334155;
+    color: #ffffff;
     font: inherit;
     text-decoration: none;
     cursor: pointer;
 }
 
 .btn.sub {
-    background: #1e293b;
-    color: #e2e8f0;
+    background: #ffffff;
+    color: #334155;
 }
 
 .pin-toggle-form {
@@ -142,7 +142,7 @@ body {
 }
 
 .link {
-    color: #7dd3fc;
+    color: #334155;
     text-decoration: underline;
 }
 
@@ -174,21 +174,21 @@ body {
     table-layout: fixed;
     border-collapse: separate;
     border-spacing: 0;
-    border: 1px solid #64748b;
+    border: 1px solid #94a3b8;
     border-radius: 8px;
     overflow: hidden;
-    outline: 1px solid #64748b;
+    outline: 1px solid #94a3b8;
 }
 
 .calendar-table th,
 .calendar-table td {
-    border: 1px solid #64748b;
+    border: 1px solid #cbd5e1;
     padding: 8px;
     text-align: left;
 }
 
 .calendar-table th {
-    background: #1e293b;
+    background: #f1f5f9;
     font-weight: bold;
 }
 

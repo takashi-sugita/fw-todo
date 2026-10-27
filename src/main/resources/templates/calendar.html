@@ -46,6 +46,13 @@
         const todos = await res.json();
         const holidayRes = await fetch(`/api/holidays?${params}`);
         const holidays = await holidayRes.json();
+        let weather = {};
+        try {
+            const weatherRes = await fetch('/api/weather');
+            weather = await weatherRes.json();
+        } catch (error) {
+            // 天気が取得できなくても、予定とカレンダーの表示は続けます。
+        }
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
@@ -58,6 +65,15 @@
         document.querySelectorAll('.calendar-table td[data-date]').forEach(cell => {
             const [year, month, day] = cell.dataset.date.split('-').map(Number);
             const weekday = new Date(year, month - 1, day).getDay();
+            if (Object.hasOwn(weather, cell.dataset.date)) {
+                const weatherLabel = document.createElement('span');
+                weatherLabel.textContent = weather[cell.dataset.date];
+                weatherLabel.className = 'calendar-weather';
+                weatherLabel.style.fontSize = '0.6em';
+                weatherLabel.style.marginLeft = '0.4em';
+                weatherLabel.style.whiteSpace = 'nowrap';
+                cell.appendChild(weatherLabel);
+            }
             if (Object.hasOwn(holidays, cell.dataset.date)) {
                 cell.style.backgroundColor = '#fff0cc';
                 cell.title = holidays[cell.dataset.date];
@@ -68,21 +84,26 @@
             }
 
             const cellTodos = todos.filter(todo => todo.dueDate === cell.dataset.date);
+            const todoList = document.createElement('div');
             cellTodos.slice(0, 3).forEach(todo => {
                     const name = document.createElement('a');
                     name.href = `/todos/${todo.id}/edit`;
                     name.textContent = todo.title;
                     name.style.color = 'inherit';
+                    name.style.display = 'block';
                     if (todo.dueDate < today && todo.completed !== true) {
                         name.style.color = 'red';
                     }
-                    cell.appendChild(name);
+                    todoList.appendChild(name);
                 });
 
             if (cellTodos.length > 3) {
                 const more = document.createElement('div');
                 more.textContent = `ほか ${cellTodos.length - 3}件`;
-                cell.appendChild(more);
+                todoList.appendChild(more);
+            }
+            if (todoList.childElementCount > 0) {
+                cell.appendChild(todoList);
             }
         });
     }
