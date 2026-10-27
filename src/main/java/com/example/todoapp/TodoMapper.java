@@ -10,7 +10,17 @@ import org.apache.ibatis.annotations.Param;
 public interface TodoMapper {
 
     List<Todo> search(@Param("keyword") String keyword, @Param("category") String category,
-            @Param("order") String order, @Param("from") LocalDate from, @Param("to") LocalDate to);
+            @Param("order") String order, @Param("from") LocalDate from, @Param("to") LocalDate to,
+            @Param("includeCompleted") boolean includeCompleted);
+
+    List<Todo> searchPage(@Param("keyword") String keyword, @Param("category") String category,
+            @Param("order") String order, @Param("includeCompleted") boolean includeCompleted,
+            @Param("limit") int limit, @Param("offset") int offset);
+
+    List<Todo> searchDeleted();
+
+    int countForList(@Param("keyword") String keyword, @Param("category") String category,
+            @Param("includeCompleted") boolean includeCompleted);
 
     Todo findById(Long id);
 
@@ -19,4 +29,6 @@ public interface TodoMapper {
     int insert(Todo todo);
 
     int deleteById(Long id);
+
+    int restoreById(Long id);
 }

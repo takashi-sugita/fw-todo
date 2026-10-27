@@ -23,6 +23,7 @@ requirements.md と handout_app_spec.md をもとに、アプリが使う `todos
 | `completed` | 完了状態。`1`＝完了、`0`＝未完了 | `BOOLEAN` | 不可 | `FALSE`（未完了） |
 | `created_at` | 登録日時 | `DATETIME` | 不可 | MySQLが登録時に自動設定 |
 | `updated_at` | 最終更新日時 | `DATETIME` | 不可 | MySQLが登録時に自動設定し、更新時に自動更新 |
+| `deleted_at` | 削除した日時。値がある行は通常の一覧/API/MCPから除外 | `DATETIME` | 可 | 削除時に設定し、復元時に空にする |
 
 ### 3.1 ジャンルに保存する値
 
@@ -73,6 +74,7 @@ CREATE TABLE todos (
     completed BOOLEAN NOT NULL DEFAULT FALSE,
     created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    deleted_at DATETIME NULL,
     PRIMARY KEY (id)
 );
 ```

@@ -21,7 +21,20 @@ public class TodoService {
     }
 
     public List<Todo> search(String keyword, String category, String order, LocalDate from, LocalDate to) {
-        return todoMapper.search(keyword, category, order, from, to);
+        return todoMapper.search(keyword, category, order, from, to, true);
+    }
+
+    public List<Todo> searchForList(String keyword, String category, String order, boolean includeCompleted) {
+        return todoMapper.search(keyword, category, order, null, null, includeCompleted);
+    }
+
+    public List<Todo> searchForList(String keyword, String category, String order, boolean includeCompleted,
+            int page) {
+        return todoMapper.searchPage(keyword, category, order, includeCompleted, 10, (page - 1) * 10);
+    }
+
+    public int countForList(String keyword, String category, boolean includeCompleted) {
+        return todoMapper.countForList(keyword, category, includeCompleted);
     }
 
     public Todo findById(Long id) {
@@ -44,5 +57,13 @@ public class TodoService {
         int result = todoMapper.deleteById(id);
         log.info("Todo deleted successfully");
         return result;
+    }
+
+    public List<Todo> searchDeleted() {
+        return todoMapper.searchDeleted();
+    }
+
+    public int restore(Long id) {
+        return todoMapper.restoreById(id);
     }
 }
