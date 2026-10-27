@@ -4,6 +4,9 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.List;
+import java.util.Map;
+import java.util.LinkedHashMap;
+import java.util.stream.Collectors;
 
 import com.example.todoapp.Todo;
 import com.example.todoapp.TodoService;
@@ -40,6 +43,28 @@ public class TodoTools {
                 .map(TodoDto::from)
                 .toList();
     }
+
+    @McpTool(name = "summarize_week", description = "期間内のやることを件数・ジャンル別の件数・期限超過数にまとめて返す。一覧は返さない")
+    public TodoSummary summarizeWeek(
+            @McpToolParam(description = "期間の始まり（yyyy-MM-dd）", required = false) String from,
+            @McpToolParam(description = "期間の終わり（yyyy-MM-dd）", required = false) String to) {
+        LocalDate fromDate = from == null ? null : LocalDate.parse(from);
+        LocalDate toDate = to == null ? null : LocalDate.parse(to);
+        if (fromDate != null && toDate != null && toDate.isBefore(fromDate)) {
+            throw new IllegalArgumentException("期間の終わりは始まり以降にしてください");
+        }
+
+        List<Todo> todos = todoService.search(null, null, "asc", fromDate, toDate);
+        Map<String, Long> categoryCounts = todos.stream()
+                .collect(Collectors.groupingBy(Todo::getCategory, LinkedHashMap::new, Collectors.counting()));
+        long overdueCount = todos.stream()
+                .filter(todo -> !Boolean.TRUE.equals(todo.getCompleted()))
+                .filter(todo -> todo.getDueDate() != null && todo.getDueDate().isBefore(LocalDate.now()))
+                .count();
+        return new TodoSummary(todos.size(), categoryCounts, overdueCount);
+    }
+
+    public record TodoSummary(long totalCount, Map<String, Long> categoryCounts, long overdueCount) {}
 
     @McpTool(name = "get_todo", description = "やることを1件返す")
     public TodoDto getTodo(
