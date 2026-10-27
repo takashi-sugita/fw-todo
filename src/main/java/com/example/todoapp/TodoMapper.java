@@ -26,6 +26,8 @@ public interface TodoMapper {
 
     int update(Todo todo);
 
+    int updatePinnedById(@Param("id") Long id, @Param("pinned") boolean pinned);
+
     int insert(Todo todo);
 
     int deleteById(Long id);

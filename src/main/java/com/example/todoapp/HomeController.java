@@ -117,6 +117,23 @@ public class HomeController {
         return "redirect:/todos";
     }
 
+    @PostMapping("/todos/{id}/pin")
+    public String togglePinned(@PathVariable Long id, @RequestParam boolean pinned,
+            @RequestParam(name = "keyword", defaultValue = "") String keyword,
+            @RequestParam(name = "category", defaultValue = "") String category,
+            @RequestParam(name = "order", defaultValue = "asc") String order,
+            @RequestParam(name = "includeCompleted", defaultValue = "false") boolean includeCompleted,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            RedirectAttributes redirectAttributes) {
+        todoService.updatePinned(id, pinned);
+        redirectAttributes.addAttribute("keyword", keyword);
+        redirectAttributes.addAttribute("category", category);
+        redirectAttributes.addAttribute("order", order);
+        redirectAttributes.addAttribute("includeCompleted", includeCompleted);
+        redirectAttributes.addAttribute("page", pinned ? 1 : page);
+        return "redirect:/todos";
+    }
+
     @GetMapping("/todos/{id}/delete")
     public String showDeleteConfirm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes) {
         Todo todo = todoService.findById(id);

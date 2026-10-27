@@ -122,6 +122,25 @@ body {
     color: #e2e8f0;
 }
 
+.pin-toggle-form {
+    display: inline;
+}
+
+.pin-toggle {
+    border: 0;
+    margin: 0 4px 0 0;
+    padding: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.pin-toggle.priority-marked,
+.pin-toggle:hover {
+    color: #ea580c;
+}
+
 .link {
     color: #7dd3fc;
     text-decoration: underline;

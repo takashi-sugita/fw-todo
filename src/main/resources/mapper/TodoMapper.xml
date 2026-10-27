@@ -4,7 +4,7 @@
   "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.todoapp.TodoMapper">
     <select id="search" resultType="com.example.todoapp.Todo">
-        SELECT id, title, category, priority, due_date, completed, completed_at
+        SELECT id, title, category, priority, due_date, completed, completed_at, pinned
         FROM todos
         <where>
             AND deleted_at IS NULL
@@ -25,13 +25,13 @@
             </if>
         </where>
         <choose>
-            <when test="order == 'desc'">ORDER BY due_date DESC</when>
-            <otherwise>ORDER BY due_date ASC</otherwise>
+            <when test="order == 'desc'">ORDER BY pinned DESC, due_date DESC</when>
+            <otherwise>ORDER BY pinned DESC, due_date ASC</otherwise>
         </choose>
     </select>
 
     <select id="searchPage" resultType="com.example.todoapp.Todo">
-        SELECT id, title, category, priority, due_date, completed, completed_at
+        SELECT id, title, category, priority, due_date, completed, completed_at, pinned
         FROM todos
         <where>
             AND deleted_at IS NULL
@@ -46,8 +46,8 @@
             </if>
         </where>
         <choose>
-            <when test="order == 'desc'">ORDER BY due_date DESC, id DESC</when>
-            <otherwise>ORDER BY due_date ASC, id ASC</otherwise>
+            <when test="order == 'desc'">ORDER BY pinned DESC, due_date DESC, id DESC</when>
+            <otherwise>ORDER BY pinned DESC, due_date ASC, id ASC</otherwise>
         </choose>
         LIMIT #{limit} OFFSET #{offset}
     </select>
@@ -70,7 +70,7 @@
     </select>
 
     <select id="findById" resultType="com.example.todoapp.Todo">
-        SELECT id, title, detail, category, priority, due_date, completed, completed_at
+        SELECT id, title, detail, category, priority, due_date, completed, completed_at, pinned
         FROM todos
         WHERE id = #{id} AND deleted_at IS NULL
     </select>
@@ -91,6 +91,11 @@
         WHERE id = #{id} AND deleted_at IS NULL
     </update>
 
+    <update id="updatePinnedById">
+        UPDATE todos SET pinned = #{pinned}
+        WHERE id = #{id} AND deleted_at IS NULL
+    </update>
+
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO todos (title, detail, category, priority, due_date, completed)
         VALUES (#{title}, #{detail}, #{category}, #{priority}, #{dueDate}, COALESCE(#{completed}, FALSE))
@@ -102,7 +107,7 @@
     </update>
 
     <select id="searchDeleted" resultType="com.example.todoapp.Todo">
-        SELECT id, title, category, priority, due_date, completed, completed_at, deleted_at
+        SELECT id, title, category, priority, due_date, completed, completed_at, deleted_at, pinned
         FROM todos
         WHERE deleted_at IS NOT NULL
         ORDER BY deleted_at DESC, id DESC

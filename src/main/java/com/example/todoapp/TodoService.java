@@ -53,6 +53,10 @@ public class TodoService {
         return result;
     }
 
+    public int updatePinned(Long id, boolean pinned) {
+        return todoMapper.updatePinnedById(id, pinned);
+    }
+
     public int delete(Long id) {
         int result = todoMapper.deleteById(id);
         log.info("Todo deleted successfully");
