@@ -77,16 +77,22 @@ public class TodoTools {
             @McpToolParam(description = "期限（yyyy-MM-dd）", required = false) String dueDate,
             @McpToolParam(description = "完了済みかどうか", required = false) Boolean completed) {
         Todo todo = todoService.findById(id);
-        if (todo == null) return null;
-        if (title != null) todo.setTitle(title);
-        if (detail != null) todo.setDetail(detail);
+        if (todo == null)
+            return null;
+        if (title != null)
+            todo.setTitle(title);
+        if (detail != null)
+            todo.setDetail(detail);
         if (category != null) {
             validateCategory(category);
             todo.setCategory(category);
         }
-        if (priority != null) todo.setPriority(priority);
-        if (dueDate != null) todo.setDueDate(LocalDate.parse(dueDate));
-        if (completed != null) todo.setCompleted(completed);
+        if (priority != null)
+            todo.setPriority(priority);
+        if (dueDate != null)
+            todo.setDueDate(LocalDate.parse(dueDate));
+        if (completed != null)
+            todo.setCompleted(completed);
         todoService.update(todo);
         return TodoDto.from(todo);
     }
@@ -95,7 +101,8 @@ public class TodoTools {
     public TodoDto completeTodo(
             @McpToolParam(description = "やることのID", required = true) Long id) {
         Todo todo = todoService.findById(id);
-        if (todo == null) return null;
+        if (todo == null)
+            return null;
         todo.setCompleted(true);
         todoService.update(todo);
         return TodoDto.from(todo);
@@ -113,7 +120,8 @@ public class TodoTools {
             @McpToolParam(description = "終了日（yyyy-MM-dd）", required = true) String to) {
         LocalDate fromDate = LocalDate.parse(from);
         LocalDate toDate = LocalDate.parse(to);
-        if (toDate.isBefore(fromDate)) throw new IllegalArgumentException("終了日は開始日以降にしてください");
+        if (toDate.isBefore(fromDate))
+            throw new IllegalArgumentException("終了日は開始日以降にしてください");
 
         Set<LocalDate> busyDates = todoService.search(null, null, "asc", fromDate, toDate).stream()
                 .map(Todo::getDueDate)
