@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>削除確認</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
 </head>
-<body>
-    <div class="container">
+<body class="todos-page form-page">
+    <main class="container form-card">
         <h1 class="page-title">このやることを削除しますか？</h1>
         <p class="confirm-value">
             やること：<span th:text="${todo.title}">やること</span>　
@@ -20,6 +20,6 @@
             </form>
             <a class="btn sub" th:href="@{/todos}">やめる</a>
         </div>
-    </div>
+    </main>
 </body>
 </html>

@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>編集内容の確認</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
 </head>
-<body>
-    <div class="container">
+<body class="todos-page form-page">
+    <main class="container form-card">
         <h1 class="page-title">編集内容の確認</h1>
 
         <p class="confirm-value">やること：<span th:text="${#strings.isEmpty(todo.title) ? '（入力なし）' : todo.title}">（入力なし）</span></p>
@@ -37,6 +37,6 @@
                 <button class="btn sub" type="submit">書き直す</button>
             </form>
         </div>
-    </div>
+    </main>
 </body>
 </html>

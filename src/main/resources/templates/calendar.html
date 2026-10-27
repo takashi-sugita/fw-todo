@@ -4,12 +4,25 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>カレンダー</title>
-    <link rel="stylesheet" th:href="@{/css/style.css(v=3)}">
+    <link rel="stylesheet" th:href="@{/css/style.css(v=5)}">
 </head>
 <body>
+    <header class="app-header">
+        <div class="app-brand"><span class="brand-mark">✓</span><span>やることリスト</span></div>
+        <nav class="app-nav" aria-label="メインメニュー">
+            <a th:href="@{/todos}"><span aria-hidden="true">☷</span> やること一覧</a>
+            <a class="active" th:href="@{/calendar}"><span aria-hidden="true">▦</span> カレンダー</a>
+        </nav>
+    </header>
     <main class="container calendar-page">
-        <h1 class="page-title" th:if="${!weekView}" th:text="${selectedMonth.year} + '年' + ${selectedMonth.monthValue} + '月'">2026年4月</h1>
-        <h1 class="page-title" th:if="${weekView}" th:text="${#temporals.format(firstDay, 'yyyy年M月d日')} + ' ～ ' + ${#temporals.format(lastDay, 'M月d日')}">2026年4月5日 ～ 4月11日</h1>
+        <div class="calendar-heading">
+            <span class="heading-icon" aria-hidden="true">▦</span>
+            <div>
+                <h1 class="page-title" th:if="${!weekView}" th:text="${selectedMonth.year} + '年' + ${selectedMonth.monthValue} + '月'">2026年4月</h1>
+                <h1 class="page-title" th:if="${weekView}" th:text="${#temporals.format(firstDay, 'yyyy年M月d日')} + ' ～ ' + ${#temporals.format(lastDay, 'M月d日')}">2026年4月5日 ～ 4月11日</h1>
+                <p>期限や予定をカレンダーで確認しましょう。</p>
+            </div>
+        </div>
         <nav class="calendar-navigation" aria-label="カレンダーの移動">
             <div class="calendar-month-links">
                 <a class="btn sub" th:if="${!weekView}" th:href="@{/calendar(year=${previousMonth.year}, month=${previousMonth.monthValue})}">前の月</a>
@@ -34,8 +47,9 @@
                 <tr th:each="weekStart : ${#numbers.sequence(0, dates.size() - 1, 7)}">
                     <td th:each="offset : ${#numbers.sequence(0, 6)}"
                         th:with="date=${dates[weekStart + offset]}"
+                        th:classappend="${date == null ? 'outside-month' : ''}"
                         th:attr="data-date=${date == null ? null : #temporals.format(date, 'yyyy-MM-dd')}">
-                        <span th:if="${date != null}" th:text="${date.dayOfMonth}">1</span>
+                        <span class="calendar-day-number" th:if="${date != null}" th:text="${date.dayOfMonth}">1</span>
                     </td>
                 </tr>
             </tbody>
@@ -61,6 +75,18 @@
         const now = new Date();
         const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
 
+        function weatherIconFor(label) {
+            if (label.startsWith('快晴') || label.startsWith('晴れ')) return '☀️';
+            if (label.startsWith('一部曇り')) return '🌤️';
+            if (label.startsWith('曇り')) return '☁️';
+            if (label.startsWith('霧雨') || label.startsWith('にわか雨')) return '🌦️';
+            if (label.startsWith('霧')) return '🌫️';
+            if (label.startsWith('雨')) return '🌧️';
+            if (label.startsWith('雪') || label.startsWith('にわか雪')) return '❄️';
+            if (label.startsWith('雷雨')) return '⛈️';
+            return '🌡️';
+        }
+
         if (holidayRes.headers.has('X-Holidays-Unavailable')) {
             const message = document.createElement('div');
             message.textContent = '祝日を取れませんでした';
@@ -71,22 +97,34 @@
             const [year, month, day] = cell.dataset.date.split('-').map(Number);
             const weekday = new Date(year, month - 1, day).getDay();
             if (Object.hasOwn(weather, cell.dataset.date)) {
+                const label = weather[cell.dataset.date];
                 const weatherLabel = document.createElement('span');
-                weatherLabel.textContent = weather[cell.dataset.date];
                 weatherLabel.className = 'calendar-weather';
-                weatherLabel.style.fontSize = '0.6em';
-                weatherLabel.style.marginLeft = '0.4em';
-                weatherLabel.style.whiteSpace = 'nowrap';
+                weatherLabel.title = label;
+                weatherLabel.setAttribute('aria-label', label);
+                const icon = document.createElement('span');
+                icon.className = 'calendar-weather-icon';
+                icon.setAttribute('aria-hidden', 'true');
+                icon.textContent = weatherIconFor(label);
+                weatherLabel.appendChild(icon);
+                const temperatures = label.match(/\d+°\/\d+°$/);
+                if (temperatures) {
+                    const temperatureLabel = document.createElement('span');
+                    temperatureLabel.className = 'calendar-weather-temperature';
+                    temperatureLabel.textContent = temperatures[0];
+                    weatherLabel.appendChild(temperatureLabel);
+                }
                 cell.appendChild(weatherLabel);
             }
             if (Object.hasOwn(holidays, cell.dataset.date)) {
-                cell.style.backgroundColor = '#fff0cc';
+                cell.classList.add('holiday');
                 cell.title = holidays[cell.dataset.date];
             } else if (weekday === 6) {
-                cell.style.backgroundColor = '#e8f1ff';
+                cell.classList.add('saturday');
             } else if (weekday === 0) {
-                cell.style.backgroundColor = '#ffe8e8';
+                cell.classList.add('sunday');
             }
+            if (cell.dataset.date === today) cell.classList.add('today');
 
             const cellTodos = todos.filter(todo => todo.dueDate === cell.dataset.date);
             const todoList = document.createElement('div');
@@ -95,10 +133,9 @@
                     const name = document.createElement('a');
                     name.href = `/todos/${todo.id}/edit`;
                     name.textContent = todo.title;
-                    name.style.color = 'inherit';
-                    name.style.display = 'block';
+                    name.className = 'calendar-todo';
                     if (todo.dueDate < today && todo.completed !== true) {
-                        name.style.color = 'red';
+                        name.classList.add('overdue');
                     }
                     todoList.appendChild(name);
                 });

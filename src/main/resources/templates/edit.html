@@ -4,10 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>やることを編集</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/style.css?v=5">
 </head>
-<body>
-    <div class="container">
+<body class="todos-page form-page">
+    <main class="container form-card">
         <h1 class="page-title">やることを編集</h1>
 
         <form th:action="@{/todos/{id}/confirm(id=${id})}" th:object="${todo}" method="post">
@@ -54,6 +54,6 @@
             <button class="btn" type="submit">確認する</button>
             <a class="btn sub" th:href="@{/todos}">一覧へ</a>
         </form>
-    </div>
+    </main>
 </body>
 </html>
