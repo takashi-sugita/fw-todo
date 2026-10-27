@@ -46,7 +46,8 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="todo : ${todos}">
+                <tr th:each="todo : ${todos}"
+                    th:attr="data-due-date=${todo.dueDate == null ? '' : #temporals.format(todo.dueDate, 'yyyy-MM-dd')}, data-completed=${todo.completed}">
                     <td th:text="${todo.title}">やること</td>
                     <td th:text="${todo.category}">ジャンル</td>
                     <td th:text="${todo.priority == 1 ? '高' : (todo.priority == 2 ? '中' : '低')}">優先度</td>
@@ -57,5 +58,15 @@
             </tbody>
         </table>
     </div>
+    <script>
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+
+        document.querySelectorAll('.todo-table tbody tr').forEach(row => {
+            if (row.dataset.dueDate && row.dataset.dueDate < today && row.dataset.completed !== 'true') {
+                row.classList.add('overdue');
+            }
+        });
+    </script>
 </body>
 </html>
