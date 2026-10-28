@@ -45,7 +45,8 @@
             </div>
             <div class="form-row">
                 <label class="form-label" for="dueDate">期限</label>
-                <input class="form-input" type="date" id="dueDate" th:field="*{dueDate}">
+                <input class="form-input" type="date" id="dueDate" th:field="*{dueDate}"
+                    th:attr="min=${#temporals.format(#temporals.createNow(), 'yyyy-MM-dd')}">
             </div>
             <button class="btn" type="submit">確認する</button>
             <a class="btn sub" th:href="@{/todos}">一覧へ</a>

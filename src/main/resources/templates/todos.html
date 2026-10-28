@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${trash} ? '削除済みのやること' : 'やること一覧'">やること一覧</title>
-    <link rel="stylesheet" href="/css/style.css?v=6">
+    <link rel="stylesheet" href="/css/style.css?v=10">
 </head>
 <body class="todos-page">
     <header class="app-header">
@@ -63,7 +63,8 @@
             <table class="todo-table">
                 <thead><tr><th>やること <span>↕</span></th><th>ジャンル <span>↕</span></th><th>優先度 <span>↕</span></th><th>期限 <span>↕</span></th><th>状態 <span>↕</span></th><th>操作</th></tr></thead>
                 <tbody>
-                    <tr th:each="todo : ${todos}" th:attr="data-due-date=${todo.dueDate == null ? '' : #temporals.format(todo.dueDate, 'yyyy-MM-dd')}, data-completed=${todo.completed}">
+                    <tr th:each="todo : ${todos}"
+                        th:classappend="${todo.completed != true and todo.expired} ? ' overdue' : (${todo.completed != true and todo.dueDateSoon} ? ' due-soon' : '')">
                         <td class="todo-name">
                             <form th:if="${!trash}" th:action="@{/todos/{id}/pin(id=${todo.id})}" method="post" class="pin-toggle-form">
                                 <input type="hidden" name="pinned" th:value="${!todo.pinned}"><input type="hidden" name="keyword" th:value="${keyword}"><input type="hidden" name="category" th:value="${category}"><input type="hidden" name="order" th:value="${order}"><input type="hidden" name="includeCompleted" th:value="${includeCompleted}"><input type="hidden" name="page" th:value="${page}">
@@ -74,7 +75,18 @@
                         </td>
                         <td><span class="category-badge" th:text="${todo.category}" th:classappend="${todo.category == 'プログラミング'} ? ' category-blue' : (${todo.category == '資格'} ? ' category-green' : (${todo.category == '就職活動'} ? ' category-purple' : ' category-neutral'))">ジャンル</span></td>
                         <td><span class="priority-badge" th:classappend="${todo.priority == 1} ? ' priority-high' : (${todo.priority == 2} ? ' priority-medium' : ' priority-low')" th:text="${todo.priority == 1 ? '高' : (todo.priority == 2 ? '中' : '低')}">中</span></td>
-                        <td th:text="${todo.dueDate}">期限</td>
+                        <td class="deadline-cell">
+                            <span class="deadline-warning deadline-expired" th:if="${todo.completed != true and todo.expired}">
+                                ⚠ 期限切れ：<span th:text="${#temporals.format(todo.dueDate, 'yyyy/MM/dd')}">2024/01/10</span>
+                            </span>
+                            <span class="deadline-warning deadline-soon" th:if="${todo.completed != true and todo.dueDateSoon}">
+                                ⏰ あと<span th:text="${todo.daysUntilDueDate}">2</span>日：<span th:text="${#temporals.format(todo.dueDate, 'yyyy/MM/dd')}">2024/01/20</span>
+                            </span>
+                            <span class="deadline-normal" th:if="${todo.dueDate != null and (todo.completed == true or (!todo.expired and !todo.dueDateSoon))}">
+                                ▣ <span th:text="${#temporals.format(todo.dueDate, 'yyyy/MM/dd')}">2024/02/15</span>
+                            </span>
+                            <span th:if="${todo.dueDate == null}">—</span>
+                        </td>
                         <td><span class="status-badge" th:if="${todo.completed}">完了<span th:if="${todo.completedAt != null}" th:text="${' ・ ' + #temporals.format(todo.completedAt, 'yyyy-MM-dd')}"></span></span><span class="status-badge" th:unless="${todo.completed}">未完了</span></td>
                         <td class="row-actions" th:if="${!trash}"><a class="link edit-link" th:href="@{/todos/{id}/edit(id=${todo.id})}">✎ 編集</a><a class="link delete-link" th:href="@{/todos/{id}/delete(id=${todo.id})}">▤ 削除</a></td>
                         <td th:if="${trash}"><form th:action="@{/todos/{id}/restore(id=${todo.id})}" method="post"><button class="btn" type="submit">復元</button></form></td>
@@ -86,12 +98,5 @@
             <a class="link" th:each="pageNumber : ${#numbers.sequence(1, totalPages)}" th:href="@{/todos(keyword=${keyword}, category=${category}, order=${order}, includeCompleted=${includeCompleted}, page=${pageNumber})}" th:text="${pageNumber}" th:attr="aria-current=${pageNumber == page ? 'page' : null}"></a>
         </nav>
     </main>
-    <script>
-        const now = new Date();
-        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-        document.querySelectorAll('.todo-table tbody tr').forEach(row => {
-            if (row.dataset.dueDate && row.dataset.dueDate < today && row.dataset.completed !== 'true') row.classList.add('overdue');
-        });
-    </script>
 </body>
 </html>

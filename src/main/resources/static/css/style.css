@@ -51,6 +51,34 @@ body {
     background: #ffe8e8;
 }
 
+.todo-table tr.overdue > td {
+    background-color: #ffe8e8;
+}
+
+.todo-table tr.due-soon {
+    background: #fff8db;
+}
+
+.todo-table tr.due-soon > td {
+    background-color: #fff8db;
+}
+
+.deadline-warning {
+    font-weight: 700;
+}
+
+.deadline-expired {
+    color: #dc2626;
+}
+
+.deadline-soon {
+    color: #d97706;
+}
+
+.deadline-normal {
+    color: #16a34a;
+}
+
 .flash {
     margin: 0 0 16px;
     border: 1px solid #cbd5e1;
@@ -239,19 +267,20 @@ body {
 .primary-actions .btn:first-child { min-width: 170px; text-align: center; }
 .utility-link { font-weight: 600; white-space: nowrap; }
 .table-wrap { overflow-x: auto; border: 1px solid #d9e3ed; border-radius: 10px; }
-.todos-page .todo-table { min-width: 820px; border-collapse: separate; border-spacing: 0; color: #1d3555; }
+.todos-page .todo-table { min-width: 1080px; border-collapse: separate; border-spacing: 0; color: #1d3555; }
 .todos-page .todo-table th, .todos-page .todo-table td { border: 0; border-right: 1px solid #e0e8f0; border-bottom: 1px solid #e0e8f0; padding: 10px 16px; font-size: 16px; }
 .todos-page .todo-table th { height: 52px; background: #f3f7fa; font-size: 15px; }
 .todos-page .todo-table th span { margin-left: 5px; color: #8191a5; }
 .todos-page .todo-table td { height: 52px; }
 .todos-page .todo-table th:last-child, .todos-page .todo-table td:last-child { border-right: 0; }
 .todos-page .todo-table tbody tr:last-child td { border-bottom: 0; }
-.todos-page .todo-table th:nth-child(1) { width: 30%; }
-.todos-page .todo-table th:nth-child(2) { width: 16%; }
-.todos-page .todo-table th:nth-child(3) { width: 10%; }
-.todos-page .todo-table th:nth-child(4) { width: 15%; }
-.todos-page .todo-table th:nth-child(5) { width: 12%; }
-.todos-page .todo-table th:nth-child(6) { width: 17%; }
+.todos-page .todo-table th:nth-child(1) { width: 32%; }
+.todos-page .todo-table th:nth-child(2) { width: 12%; }
+.todos-page .todo-table th:nth-child(3) { width: 9%; }
+.todos-page .todo-table th:nth-child(4) { width: 20%; }
+.todos-page .todo-table th:nth-child(5) { width: 9%; }
+.todos-page .todo-table th:nth-child(6) { width: 18%; }
+.deadline-cell { white-space: nowrap; }
 .todo-name { white-space: nowrap; }
 .pin-toggle-form { display: inline; margin-right: 14px; }
 .todos-page .pin-toggle { border: 0; padding: 0; background: none; color: #8b9bb0; font-size: 23px; cursor: pointer; vertical-align: middle; }

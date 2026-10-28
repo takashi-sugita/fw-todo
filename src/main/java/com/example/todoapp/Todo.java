@@ -2,6 +2,7 @@ package com.example.todoapp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -31,6 +32,22 @@ public class Todo {
 
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private LocalDate dueDate;
+
+    public boolean isExpired() {
+        return dueDate != null && dueDate.isBefore(LocalDate.now());
+    }
+
+    public boolean isDueDateSoon() {
+        long daysUntilDueDate = getDaysUntilDueDate();
+        return daysUntilDueDate >= 0 && daysUntilDueDate <= 3;
+    }
+
+    public long getDaysUntilDueDate() {
+        if (dueDate == null) {
+            return Long.MAX_VALUE;
+        }
+        return ChronoUnit.DAYS.between(LocalDate.now(), dueDate);
+    }
 
     private Boolean completed;
     private Boolean pinned;
