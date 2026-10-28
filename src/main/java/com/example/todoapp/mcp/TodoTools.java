@@ -56,7 +56,7 @@ public class TodoTools {
 
         List<Todo> todos = todoService.search(null, null, "asc", fromDate, toDate);
         Map<String, Long> categoryCounts = todos.stream()
-                .collect(Collectors.groupingBy(Todo::getCategory, LinkedHashMap::new, Collectors.counting()));
+                .collect(Collectors.groupingBy(todo -> todo.getCategory(), LinkedHashMap::new, Collectors.counting()));
         long overdueCount = todos.stream()
                 .filter(todo -> !Boolean.TRUE.equals(todo.getCompleted()))
                 .filter(todo -> todo.getDueDate() != null && todo.getDueDate().isBefore(LocalDate.now()))
@@ -149,7 +149,7 @@ public class TodoTools {
             throw new IllegalArgumentException("終了日は開始日以降にしてください");
 
         Set<LocalDate> busyDates = todoService.search(null, null, "asc", fromDate, toDate).stream()
-                .map(Todo::getDueDate)
+                .map(todo -> todo.getDueDate())
                 .filter(date -> date != null)
                 .collect(java.util.stream.Collectors.toSet());
         var holidayResult = holidayClient.fetchHolidays();

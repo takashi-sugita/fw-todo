@@ -4,6 +4,7 @@ import java.util.Map;
 import java.time.Duration;
 
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestClient;
@@ -25,7 +26,7 @@ public class HolidayClient {
                     .get()
                     .uri(HOLIDAYS_URL)
                     .retrieve()
-                    .body(Map.class);
+                    .body(new ParameterizedTypeReference<Map<String, String>>() {});
             if (holidays == null) {
                 return new HolidayResult(Map.of(), true);
             }

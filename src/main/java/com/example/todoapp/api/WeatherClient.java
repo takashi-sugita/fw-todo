@@ -9,6 +9,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.RestClientException;
@@ -31,7 +32,7 @@ public class WeatherClient {
                     .get()
                     .uri(URI.create(WEATHER_URL))
                     .retrieve()
-                    .body(Map.class);
+                    .body(new ParameterizedTypeReference<Map<String, Object>>() {});
             Object dailyValue = response == null ? null : response.get("daily");
             if (!(dailyValue instanceof Map<?, ?> daily)
                     || !(daily.get("time") instanceof List<?> dates)

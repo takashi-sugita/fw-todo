@@ -37,7 +37,7 @@ public class HolidayApiController {
                     return (fromDate == null || !date.isBefore(fromDate))
                             && (toDate == null || !date.isAfter(toDate));
                 })
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
+                .collect(Collectors.toMap(entry -> entry.getKey(), entry -> entry.getValue()));
 
         return response(filtered, result.unavailable());
     }
