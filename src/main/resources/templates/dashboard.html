@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>統計ダッシュボード</title>
+    <link rel="stylesheet" href="/css/style.css?v=11">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+</head>
+<body class="todos-page">
+    <header class="app-header">
+        <div class="app-brand"><span class="brand-mark">✓</span><span>やることリスト</span></div>
+        <nav class="app-nav" aria-label="メインメニュー">
+            <a th:href="@{/todos}"><span aria-hidden="true">☷</span> やること一覧</a>
+            <a th:href="@{/calendar}"><span aria-hidden="true">▦</span> カレンダー</a>
+            <a class="active" th:href="@{/dashboard}"><svg class="nav-chart-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17V10h3v7M8.5 17V4h3v13M14 17V7h3v10M2 17.5h16"/></svg> 統計</a>
+        </nav>
+    </header>
+    <main class="dashboard-page">
+        <header class="dashboard-heading">
+            <span class="heading-icon dashboard-chart-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 20V12h4v8M10 20V4h4v16M16 20V8h4v12M3 20.5h18"/></svg></span>
+            <div><h1>統計ダッシュボード</h1><p>タスクの進捗と取り組み状況を確認できます。</p></div>
+        </header>
+        <section class="stats-grid" aria-label="タスク統計">
+            <article class="stat-card stat-total"><span>全タスク数</span><strong th:text="${dashboardStats.totalTasks}">0</strong><small>登録中のタスク</small></article>
+            <article class="stat-card stat-completed"><span>完了数</span><strong th:text="${dashboardStats.completedTasks}">0</strong><small>完了したタスク</small></article>
+            <article class="stat-card stat-incomplete"><span>未完了数</span><strong th:text="${dashboardStats.pendingTasks}">0</strong><small>これから取り組むタスク</small></article>
+            <article class="stat-card stat-expired"><span>期限切れ数</span><strong th:text="${dashboardStats.overdueTasks}">0</strong><small>期限を過ぎた未完了タスク</small></article>
+        </section>
+        <section class="recent-tasks-card">
+            <div class="recent-tasks-heading"><h2>最近のタスク</h2><a th:href="@{/todos}">一覧を見る →</a></div>
+            <p class="recent-empty" th:if="${#lists.isEmpty(dashboardStats.recentTasks)}">期限切れ、または3日以内に期限を迎える未完了タスクはありません。</p>
+            <div class="recent-task-list" th:unless="${#lists.isEmpty(dashboardStats.recentTasks)}">
+                <article class="recent-task" th:each="todo : ${dashboardStats.recentTasks}">
+                    <span class="recent-task-title" th:text="${todo.title}">タスク名</span>
+                    <span class="category-badge recent-task-category" th:classappend="${todo.category == 'プログラミング'} ? ' category-blue' : (${todo.category == '資格'} ? ' category-green' : (${todo.category == '就職活動'} ? ' category-purple' : ' category-neutral'))" th:text="${todo.category}">ジャンル</span>
+                    <span class="recent-task-status recent-expired" th:if="${todo.expired}">⚠ 期限切れ</span>
+                    <span class="recent-task-status recent-due" th:unless="${todo.expired}" th:text="${'⏰ あと' + todo.daysUntilDueDate + '日'}">⏰ あと0日</span>
+                </article>
+            </div>
+        </section>
+        <section class="charts-grid" aria-label="タスクグラフ">
+            <article class="chart-card chart-daily"><h2>直近7日間の完了数</h2><div class="chart-canvas"><canvas id="dailyChart" aria-label="直近7日間の日別タスク完了数"></canvas></div></article>
+            <article class="chart-card chart-status"><h2>ステータス別の割合</h2><div class="chart-canvas"><canvas id="statusChart" aria-label="未完了と完了の割合"></canvas></div></article>
+            <article class="chart-card chart-category"><h2>カテゴリ別のタスク数</h2><div class="chart-canvas"><canvas id="categoryChart" aria-label="カテゴリ別タスク数"></canvas></div></article>
+        </section>
+    </main>
+    <script th:inline="javascript">
+        const dailyLabels = /*[[${dashboardStats.dailyLabels}]]*/ [];
+        const dailyCompletions = /*[[${dashboardStats.dailyCompletions}]]*/ [];
+        const statusCounts = /*[[${dashboardStats.statusCounts}]]*/ [];
+        const categoryLabels = /*[[${dashboardStats.categoryLabels}]]*/ [];
+        const categoryCounts = /*[[${dashboardStats.categoryCounts}]]*/ [];
+        const palette = ['#1260d7', '#36a17a', '#f2a83b', '#8b6bd6', '#e36d72', '#44a6b8', '#8394a8'];
+
+        new Chart(document.getElementById('dailyChart'), {
+            type: 'bar',
+            data: { labels: dailyLabels, datasets: [{ label: '完了タスク', data: dailyCompletions, backgroundColor: '#36a17a', borderRadius: 7, maxBarThickness: 46 }] },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#edf1f6' } }, x: { grid: { display: false } } } }
+        });
+        new Chart(document.getElementById('statusChart'), {
+            type: 'doughnut',
+            data: { labels: ['未完了', '完了', '期限切れ'], datasets: [{ data: statusCounts, backgroundColor: ['#d58b20', '#21815f', '#d3484f'], borderWidth: 0, hoverOffset: 5 }] },
+            options: { responsive: true, maintainAspectRatio: false, cutout: '66%', plugins: { legend: { position: 'bottom', labels: { usePointStyle: true, padding: 18, sort: (a, b) => [2, 0, 1].indexOf(a.index) - [2, 0, 1].indexOf(b.index) } } } }
+        });
+        new Chart(document.getElementById('categoryChart'), {
+            type: 'bar',
+            data: { labels: categoryLabels, datasets: [{ label: 'タスク数', data: categoryCounts, backgroundColor: categoryLabels.map((_, i) => palette[i % palette.length]), borderRadius: 6, maxBarThickness: 32 }] },
+            options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#edf1f6' } }, y: { grid: { display: false } } } }
+        });
+    </script>
+</body>
+</html>
