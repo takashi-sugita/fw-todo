@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ja" xmlns:th="http://www.thymeleaf.org">
+<html lang="ja" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,6 +15,14 @@
             <a th:href="@{/calendar}"><span aria-hidden="true">▦</span> カレンダー</a>
             <a class="active" th:href="@{/dashboard}"><svg class="nav-chart-icon" aria-hidden="true" viewBox="0 0 20 20"><path d="M3 17V10h3v7M8.5 17V4h3v13M14 17V7h3v10M2 17.5h16"/></svg> 統計</a>
         </nav>
+        <div class="profile-menu">
+            <button class="profile-trigger" type="button" aria-expanded="false" aria-haspopup="true"><span class="profile-avatar" aria-hidden="true"><svg viewBox="0 0 32 32"><circle cx="16" cy="11" r="6"/><path d="M5 29c.8-6.2 4.6-9.5 11-9.5S26.2 22.8 27 29"/></svg></span><span class="profile-name">admin</span><svg class="profile-chevron" viewBox="0 0 16 16" aria-hidden="true"><path d="m3 6 5 5 5-5"/></svg></button>
+            <div class="profile-dropdown" hidden><form th:action="@{/logout}" method="post"><button type="submit">ログアウト</button></form></div>
+        </div>
+        <form th:action="@{/logout}" method="post" class="logout-form">
+            <span sec:authentication="name"></span>
+            <button type="submit">ログアウト</button>
+        </form>
     </header>
     <main class="dashboard-page">
         <header class="dashboard-heading">
@@ -67,6 +75,14 @@
             type: 'bar',
             data: { labels: categoryLabels, datasets: [{ label: 'タスク数', data: categoryCounts, backgroundColor: categoryLabels.map((_, i) => palette[i % palette.length]), borderRadius: 6, maxBarThickness: 32 }] },
             options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { beginAtZero: true, ticks: { precision: 0 }, grid: { color: '#edf1f6' } }, y: { grid: { display: false } } } }
+        });
+    </script>
+    <script>
+        document.querySelectorAll('.profile-menu').forEach(menu => {
+            const trigger = menu.querySelector('.profile-trigger'); const dropdown = menu.querySelector('.profile-dropdown');
+            trigger.addEventListener('click', () => { const open = trigger.getAttribute('aria-expanded') === 'true'; trigger.setAttribute('aria-expanded', String(!open)); dropdown.hidden = open; });
+            document.addEventListener('click', event => { if (!menu.contains(event.target)) { trigger.setAttribute('aria-expanded', 'false'); dropdown.hidden = true; } });
+            document.addEventListener('keydown', event => { if (event.key === 'Escape') { trigger.setAttribute('aria-expanded', 'false'); dropdown.hidden = true; } });
         });
     </script>
 </body>
